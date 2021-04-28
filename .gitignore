@@ -130,5 +130,7 @@ dmypy.json
 
 .vscode
 
+# large file-type image formats
 *.zip
+*.img
 files_to_add/**
