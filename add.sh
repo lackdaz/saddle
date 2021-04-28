@@ -10,9 +10,13 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
 trap 'echo "\"${last_command}\" command filed with exit code $?." && sudo losetup -D' EXIT
 
+
+
+
 # Look for and install pishrink
 if [[ ! $(command -v pishrink) ]]; then
     # install pishrink
+    sudo apt-get update && apt-get install -y pigz
     wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh -O pishrink
     chmod +x pishrink
     sudo mv pishrink /usr/local/bin/
@@ -25,14 +29,24 @@ sudo ls images &>/dev/null
 
 rm -rf build/*
 
+SRC_FILES=$(find . -name '*-saddle*')
+if [[ -z "$SRC_FILES" ]]; then
+    echo "source files not found!"
+    eccho "Did you add a <*>-saddle folder in files_to_add?"
+    exit 1
+fi
+SRC_FILES=$(realpath $SRC_FILES)
+
 IMG_NAME=lite-deploy
 MNT_DIR_NAME=pideploy
 BUILD_DIR=$(realpath build)
 SRC_ZIP=$(realpath images/lite-vanilla.zip)
 DEST_ZIP="${BUILD_DIR}/${IMG_NAME}.zip"
-TMP_DIR=$(realpath /tmp)
+TMP_DIR=$(realpath /tmp/saddle)
 sudo unzip -o $SRC_ZIP -d $TMP_DIR
 SRC_IMG=${TMP_DIR}/*.img
+
+echo "found src"
 
 [[ -z "$SRC_IMG" ]] && echo "source image not found!" && exit 1
 # TODO: log error
@@ -65,7 +79,7 @@ sudo umount $MNT_DIR
 # Mount the root partition, and copy any files from filesToAdd
 # to the partition.
 sudo mount ${LOOP_GLOB}p2 $MNT_DIR # I don't know why its 19
-sudo cp -r files_to_add/* $MNT_DIR/
+sudo cp -r ${SRC_FILES}/* $MNT_DIR/
 sudo umount $MNT_DIR
 # Don't need the loopback device anymore, disconnect it.
 sudo losetup -D
