@@ -22,7 +22,7 @@ fi
 
 # Copy the original raspbian image to a new
 # building image as we're working on it.
-sudo ls images &>/dev/null
+sudo ls &>/dev/null
 
 rm -rf build/*
 
