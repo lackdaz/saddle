@@ -53,7 +53,7 @@ SRC_FILES=$(realpath $SRC_FILES)
 IMG_NAME=lite-deploy
 MNT_DIR_NAME=pideploy
 BUILD_DIR=$(realpath build)
-SRC_ZIP=$(realpath images/lite-vanilla.zip)
+SRC_ZIP=$(realpath images/*.zip)
 DEST_ZIP="${BUILD_DIR}/${IMG_NAME}.zip"
 TMP_DIR=$(realpath /tmp/saddle)
 sudo unzip -o $SRC_ZIP -d $TMP_DIR
