@@ -10,9 +10,6 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
 trap 'echo "\"${last_command}\" command filed with exit code $?." && sudo losetup -D' EXIT
 
-
-
-
 # Look for and install pishrink
 if [[ ! $(command -v pishrink) ]]; then
     # install pishrink
@@ -29,10 +26,26 @@ sudo ls images &>/dev/null
 
 rm -rf build/*
 
+if [[ ! -d "images" ]]; then
+    echo "creating images directory"
+    mkdir -p images
+    wget -P images/ https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/2021-03-04-raspios-buster-armhf-lite.zip
+fi
+
+if [[ ! -d "files_to_add" ]]; then
+    echo "creating files_to_add directory"
+    mkdir -p files_to_add
+fi
+
+if [[ ! -d "build" ]]; then
+    echo "creating build directory"
+    mkdir -p build
+fi
+
 SRC_FILES=$(find . -name '*-saddle*')
 if [[ -z "$SRC_FILES" ]]; then
     echo "source files not found!"
-    eccho "Did you add a <*>-saddle folder in files_to_add?"
+    echo "Did you add a <*>-saddle folder in files_to_add?"
     exit 1
 fi
 SRC_FILES=$(realpath $SRC_FILES)
