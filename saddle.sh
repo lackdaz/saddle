@@ -26,12 +26,16 @@ sudo ls &>/dev/null
 
 rm -rf build/*
 
+ZIP_EXIST=$(find . -name '*.img' -or -name '*.zip')
+echo $ZIP_EXIST
 if [[ ! -d "images" ]]; then
     echo "creating images directory"
     mkdir -p images
+fi
+if [[ -z $ZIP_EXIST ]]; then
+    echo "downloading image"
     wget -P images/ https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/2021-03-04-raspios-buster-armhf-lite.zip
 fi
-
 if [[ ! -d "files_to_add" ]]; then
     echo "creating files_to_add directory"
     mkdir -p files_to_add
@@ -50,16 +54,26 @@ if [[ -z "$SRC_FILES" ]]; then
 fi
 SRC_FILES=$(realpath $SRC_FILES)
 
+# TODO: add support for .img format after
+
 IMG_NAME=lite-deploy
 MNT_DIR_NAME=pideploy
 BUILD_DIR=$(realpath build)
-SRC_ZIP=$(realpath images/*.zip)
+SRC_ZIP=($(realpath images/*.zip))
+if [[ ${#SRC_ZIP[@]} -eq 1 ]]; then
+    SRC_ZIP=${SRC_ZIP[0]}
+elif [[ ${#SRC_ZIP[@]} -gt 1 ]]; then
+    echo "More than one zip image found in images directory"
+    exit 1
+else
+    echo "Error with number of images in images directory"
+    exit 1
+fi
+
 DEST_ZIP="${BUILD_DIR}/${IMG_NAME}.zip"
 TMP_DIR=$(realpath /tmp/saddle)
 sudo unzip -o $SRC_ZIP -d $TMP_DIR
 SRC_IMG=${TMP_DIR}/*.img
-
-echo "found src"
 
 [[ -z "$SRC_IMG" ]] && echo "source image not found!" && exit 1
 # TODO: log error
