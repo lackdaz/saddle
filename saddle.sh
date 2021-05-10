@@ -46,13 +46,31 @@ if [[ ! -d "build" ]]; then
     mkdir -p build
 fi
 
-SRC_FILES=$(find . -name '*-saddle*')
-if [[ -z "$SRC_FILES" ]]; then
+SRC_DIR=$(find . -name '*_saddle*' -o -name '*-saddle*')
+if [[ -z "$SRC_DIR" ]]; then
     echo "source files not found!"
     echo "Did you add a <*>-saddle folder in files_to_add?"
     exit 1
 fi
-SRC_FILES=$(realpath $SRC_FILES)
+SRC_DIR=$(realpath $SRC_DIR)
+
+VFAT_DIR=$(find $SRC_DIR -name 'vfat')
+if [[ -z "$VFAT_DIR" ]]; then
+    echo "vfat files not found!"
+    echo "Did you add a vfat folder in tb_saddle?"
+    exit 1
+fi
+
+VFAT_DIR=$(realpath $VFAT_DIR)
+
+EXT_DIR=$(find $SRC_DIR -name 'ext4')
+if [[ -z "$EXT_DIR" ]]; then
+    echo "ext4 files not found!"
+    echo "Did you add a ext4 folder in tb_saddle?"
+    exit 1
+fi
+
+EXT_DIR=$(realpath $EXT_DIR)
 
 # TODO: add support for .img format after
 
@@ -101,18 +119,18 @@ MNT_DIR=/mnt/${MNT_DIR_NAME}
 sudo mkdir -p $MNT_DIR
 sudo mount ${LOOP_GLOB}p1 $MNT_DIR
 # sudo cp config.txt $MNT_DIR/
+sudo cp $VFAT_DIR/ssh.txt $MNT_DIR # copy ssh file to automagically enable SSH
 sudo umount $MNT_DIR
 
-# Mount the root partition, and copy any files from filesToAdd
-# to the partition.
+# Mount the root partition, and copy any files from ext4 to the partition.
 sudo mount ${LOOP_GLOB}p2 $MNT_DIR # I don't know why its 19
-sudo cp -r ${SRC_FILES}/* $MNT_DIR/
+sudo cp -r ${EXT_DIR}/* $MNT_DIR/
 sudo umount $MNT_DIR
 # Don't need the loopback device anymore, disconnect it.
 sudo losetup -D
 
 # Finished building the image!
-sudo cp $SRC_IMG ${BUILD_DIR}/${IMG_NAME}.img
+# sudo cp $SRC_IMG ${BUILD_DIR}/${IMG_NAME}.img
 sudo pishrink -vraz $SRC_IMG $DEST_ZIP
 # zip -v $DEST_ZIP $SRC_IMG
 sudo rm -rf $TMP_DIR
