@@ -13,7 +13,7 @@ trap 'echo "\"${last_command}\" command filed with exit code $?." && sudo losetu
 # Look for and install pishrink
 if [[ ! $(command -v pishrink) ]]; then
     # install pishrink
-    sudo apt-get update && apt-get install -y pigz
+    sudo apt-get update && sudo apt-get install -y pigz
     wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh -O pishrink
     chmod +x pishrink
     sudo mv pishrink /usr/local/bin/
