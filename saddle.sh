@@ -119,7 +119,7 @@ MNT_DIR=/mnt/${MNT_DIR_NAME}
 sudo mkdir -p $MNT_DIR
 sudo mount ${LOOP_GLOB}p1 $MNT_DIR
 # sudo cp config.txt $MNT_DIR/
-sudo cp $VFAT_DIR/ssh.txt $MNT_DIR # copy ssh file to automagically enable SSH
+sudo cp $VFAT_DIR/* $MNT_DIR # copy ssh file and other config files
 sudo umount $MNT_DIR
 
 # Mount the root partition, and copy any files from ext4 to the partition.
