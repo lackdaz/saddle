@@ -4,6 +4,14 @@
 # All rights reserved by TelemedC Pte Ltd.
 set -e
 
+# pin by commit hash (sha1)
+readonly PISHRINK_VERSION="9d9c0dd32cd988f9c3bd9953ca245d33a52fc9e3"
+# but it's very remotly possible to produce sha1 clashes (with difficulty*)
+# so we use a sha512sum as well. This should be manually generated with
+# `sha512sum pishrink.sh` after checking it's contents
+# * https://shattered.io/
+readonly PISHRINK_SHA512="4689e8dcae468fbeafafcfc9a286f692282407f9aadfef61d3a12cbe239a2ce6c5475c7f6fc12c9c4e42209ec4d3fd175a88838e6f5d0e85278563cb537c68cc  pishrink.sh"
+
 ## EXIT CATCH ##
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
@@ -14,7 +22,8 @@ trap 'echo "\"${last_command}\" command filed with exit code $?." && sudo losetu
 if [[ ! $(command -v pishrink) ]]; then
     # install pishrink
     sudo apt-get update && sudo apt-get install -y pigz
-    wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh -O pishrink
+    wget "https://raw.githubusercontent.com/Drewsif/PiShrink/$PISHRINK_VERSION/pishrink.sh" -O pishrink
+    echo "$PISHRINK_SHA512" | sha512sum -c -
     chmod +x pishrink
     sudo mv pishrink /usr/local/bin/
     [[ $(command -v pishrink) ]] && echo "pishrink installed!"
