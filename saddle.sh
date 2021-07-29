@@ -133,7 +133,7 @@ sudo umount $MNT_DIR
 
 # Mount the root partition, and copy any files from ext4 to the partition.
 sudo mount ${LOOP_GLOB}p2 $MNT_DIR # I don't know why its 19
-sudo cp -r ${EXT_DIR}/* $MNT_DIR/
+sudo cp -r --preserve=links,mode,timestamps ${EXT_DIR}/* $MNT_DIR/
 sudo umount $MNT_DIR
 # Don't need the loopback device anymore, disconnect it.
 sudo losetup -D
