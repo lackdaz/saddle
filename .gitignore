@@ -135,4 +135,4 @@ dmypy.json
 *.img
 files_to_add/**
 images/**
-
+!README.md

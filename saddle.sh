@@ -10,6 +10,9 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
 trap 'echo "\"${last_command}\" command filed with exit code $?." && sudo losetup -D' EXIT
 
+# What would you like to name your compressed destination zip?
+IMG_NAME=lite-deploy
+
 # Look for and install pishrink
 if [[ ! $(command -v pishrink) ]]; then
     # install pishrink
@@ -28,10 +31,14 @@ rm -rf build/*
 
 ZIP_EXIST=$(find . -name '*.img' -or -name '*.zip')
 echo $ZIP_EXIST
+
+# Create templated directories --- if somehow deleted
 if [[ ! -d "images" ]]; then
     echo "creating images directory"
     mkdir -p images
 fi
+
+# Download base image if none exists
 if [[ -z $ZIP_EXIST ]]; then
     echo "downloading image"
     wget -P images/ https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/2021-03-04-raspios-buster-armhf-lite.zip
@@ -46,6 +53,7 @@ if [[ ! -d "build" ]]; then
     mkdir -p build
 fi
 
+# find any directories named *_saddle or *-saddle
 SRC_DIR=$(find . -name '*_saddle*' -o -name '*-saddle*')
 if [[ -z "$SRC_DIR" ]]; then
     echo "source files not found!"
@@ -54,6 +62,7 @@ if [[ -z "$SRC_DIR" ]]; then
 fi
 SRC_DIR=$(realpath $SRC_DIR)
 
+# copy vfat directory over
 VFAT_DIR=$(find $SRC_DIR -name 'vfat')
 if [[ -z "$VFAT_DIR" ]]; then
     echo "vfat files not found!"
@@ -63,6 +72,7 @@ fi
 
 VFAT_DIR=$(realpath $VFAT_DIR)
 
+# copy ext4 directory over
 EXT_DIR=$(find $SRC_DIR -name 'ext4')
 if [[ -z "$EXT_DIR" ]]; then
     echo "ext4 files not found!"
@@ -74,7 +84,6 @@ EXT_DIR=$(realpath $EXT_DIR)
 
 # TODO: add support for .img format after
 
-IMG_NAME=lite-deploy
 MNT_DIR_NAME=pideploy
 BUILD_DIR=$(realpath build)
 SRC_ZIP=($(realpath images/*.zip))
