@@ -10,7 +10,7 @@ readonly PISHRINK_VERSION="9d9c0dd32cd988f9c3bd9953ca245d33a52fc9e3"
 # so we use a sha512sum as well. This should be manually generated with
 # `sha512sum pishrink.sh` after checking it's contents
 # * https://shattered.io/
-readonly PISHRINK_SHA512="4689e8dcae468fbeafafcfc9a286f692282407f9aadfef61d3a12cbe239a2ce6c5475c7f6fc12c9c4e42209ec4d3fd175a88838e6f5d0e85278563cb537c68cc  pishrink.sh"
+readonly PISHRINK_SHA512="4689e8dcae468fbeafafcfc9a286f692282407f9aadfef61d3a12cbe239a2ce6c5475c7f6fc12c9c4e42209ec4d3fd175a88838e6f5d0e85278563cb537c68cc  pishrink"
 
 ## EXIT CATCH ##
 # keep track of the last executed command
