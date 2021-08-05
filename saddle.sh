@@ -45,9 +45,9 @@ if [[ -z $ZIP_EXIST ]]; then
     echo "downloading image"
     wget -P images/ https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/2021-03-04-raspios-buster-armhf-lite.zip
 fi
-if [[ ! -d "files_to_add" ]]; then
-    echo "creating files_to_add directory"
-    mkdir -p files_to_add
+if [[ ! -d "tb_saddle" ]]; then
+    echo "creating tb_saddle directory"
+    mkdir -p tb_saddle
 fi
 
 if [[ ! -d "build" ]]; then
@@ -58,7 +58,7 @@ fi
 SRC_DIR=$(find . -name '*_saddle*' -o -name '*-saddle*')
 if [[ -z "$SRC_DIR" ]]; then
     echo "source files not found!"
-    echo "Did you add a <*>-saddle folder in files_to_add?"
+    echo "Did you add a <*>-saddle folder in tb_saddle?"
     exit 1
 fi
 SRC_DIR=$(realpath $SRC_DIR)
