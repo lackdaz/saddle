@@ -4,6 +4,14 @@
 # All rights reserved by TelemedC Pte Ltd.
 set -e
 
+# pin by commit hash (sha1)
+readonly PISHRINK_VERSION="9d9c0dd32cd988f9c3bd9953ca245d33a52fc9e3"
+# but it's very remotly possible to produce sha1 clashes (with difficulty*)
+# so we use a sha512sum as well. This should be manually generated with
+# `sha512sum pishrink.sh` after checking it's contents
+# * https://shattered.io/
+readonly PISHRINK_SHA512="4689e8dcae468fbeafafcfc9a286f692282407f9aadfef61d3a12cbe239a2ce6c5475c7f6fc12c9c4e42209ec4d3fd175a88838e6f5d0e85278563cb537c68cc  pishrink"
+
 ## EXIT CATCH ##
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
@@ -16,8 +24,9 @@ IMG_NAME=lite-deploy
 # Look for and install pishrink
 if [[ ! $(command -v pishrink) ]]; then
     # install pishrink
-    sudo apt-get update && apt-get install -y pigz
-    wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh -O pishrink
+    sudo apt-get update && sudo apt-get install -y pigz
+    wget "https://raw.githubusercontent.com/Drewsif/PiShrink/$PISHRINK_VERSION/pishrink.sh" -O pishrink
+    echo "$PISHRINK_SHA512" | sha512sum -c -
     chmod +x pishrink
     sudo mv pishrink /usr/local/bin/
     [[ $(command -v pishrink) ]] && echo "pishrink installed!"
@@ -43,9 +52,9 @@ if [[ -z $ZIP_EXIST ]]; then
     echo "downloading image"
     wget -P images/ https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/2021-03-04-raspios-buster-armhf-lite.zip
 fi
-if [[ ! -d "files_to_add" ]]; then
-    echo "creating files_to_add directory"
-    mkdir -p files_to_add
+if [[ ! -d "tb_saddle" ]]; then
+    echo "creating tb_saddle directory"
+    mkdir -p tb_saddle
 fi
 
 if [[ ! -d "build" ]]; then
@@ -57,7 +66,7 @@ fi
 SRC_DIR=$(find . -name '*_saddle*' -o -name '*-saddle*')
 if [[ -z "$SRC_DIR" ]]; then
     echo "source files not found!"
-    echo "Did you add a <*>-saddle folder in files_to_add?"
+    echo "Did you add a <*>-saddle folder in tb_saddle?"
     exit 1
 fi
 SRC_DIR=$(realpath $SRC_DIR)
@@ -128,12 +137,12 @@ MNT_DIR=/mnt/${MNT_DIR_NAME}
 sudo mkdir -p $MNT_DIR
 sudo mount ${LOOP_GLOB}p1 $MNT_DIR
 # sudo cp config.txt $MNT_DIR/
-sudo cp $VFAT_DIR/ssh.txt $MNT_DIR # copy ssh file to automagically enable SSH
+sudo cp $VFAT_DIR/* $MNT_DIR # copy ssh file and other config files
 sudo umount $MNT_DIR
 
 # Mount the root partition, and copy any files from ext4 to the partition.
 sudo mount ${LOOP_GLOB}p2 $MNT_DIR # I don't know why its 19
-sudo cp -r ${EXT_DIR}/* $MNT_DIR/
+sudo cp -r --preserve=links,mode,timestamps ${EXT_DIR}/* $MNT_DIR/
 sudo umount $MNT_DIR
 # Don't need the loopback device anymore, disconnect it.
 sudo losetup -D
